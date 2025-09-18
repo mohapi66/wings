@@ -1,27 +1,30 @@
 import React from 'react';
 
-const BACKEND_URL = "https://wings-inventory-backend.onrender.com"; // backend URL for images
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+  return imageUrl.startsWith('http') ? imageUrl : `https://wings-inventory-backend.onrender.com${imageUrl}`;
+};
 
-const Dashboard = ({ products = [], sales = [], inventoryStatus }) => {
+const Dashboard = ({ products, sales, inventoryStatus }) => {
   const totalProducts = products.length;
   const totalSales = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
-  const lowStockCount = inventoryStatus?.lowStockCount || 0;
+  const lowStockCount = inventoryStatus.lowStockCount || 0;
 
   return (
     <div className="dashboard">
       <h1>Dashboard</h1>
-      
+
       <div className="stats-container">
         <div className="stat-card">
           <h3>Total Products</h3>
           <p className="stat-number">{totalProducts}</p>
         </div>
-        
+
         <div className="stat-card">
           <h3>Total Sales</h3>
           <p className="stat-number">M{totalSales.toFixed(2)}</p>
         </div>
-        
+
         <div className="stat-card">
           <h3>Low Stock Items</h3>
           <p className="stat-number">{lowStockCount}</p>
@@ -63,9 +66,9 @@ const Dashboard = ({ products = [], sales = [], inventoryStatus }) => {
             <div className="products-grid">
               {products.map(product => (
                 <div key={product.id} className="product-card">
-                  {product.imageUrl && (
+                  {getImageUrl(product.imageUrl) && (
                     <div className="product-image">
-                      <img src={`${BACKEND_URL}${product.imageUrl}`} alt={product.name} />
+                      <img src={getImageUrl(product.imageUrl)} alt={product.name} />
                     </div>
                   )}
                   <div className="product-info">
