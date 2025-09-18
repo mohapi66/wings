@@ -1,9 +1,11 @@
 import React from 'react';
 
-const Dashboard = ({ products, sales, inventoryStatus }) => {
+const BACKEND_URL = "https://wings-inventory-backend.onrender.com"; // backend URL for images
+
+const Dashboard = ({ products = [], sales = [], inventoryStatus }) => {
   const totalProducts = products.length;
   const totalSales = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
-  const lowStockCount = inventoryStatus.lowStockCount || 0;
+  const lowStockCount = inventoryStatus?.lowStockCount || 0;
 
   return (
     <div className="dashboard">
@@ -63,7 +65,7 @@ const Dashboard = ({ products, sales, inventoryStatus }) => {
                 <div key={product.id} className="product-card">
                   {product.imageUrl && (
                     <div className="product-image">
-                      <img src={product.imageUrl} alt={product.name} />
+                      <img src={`${BACKEND_URL}${product.imageUrl}`} alt={product.name} />
                     </div>
                   )}
                   <div className="product-info">
