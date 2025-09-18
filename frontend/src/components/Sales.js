@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const BACKEND_URL = "https://wings-inventory-backend.onrender.com/api"; // Updated backend URL
+const BACKEND_URL = "https://wings-inventory-backend.onrender.com/api";
 
 const Sales = ({ products = [], onSale, onUpdateSales }) => {
   const [selectedProduct, setSelectedProduct] = useState('');
@@ -14,7 +14,7 @@ const Sales = ({ products = [], onSale, onUpdateSales }) => {
       return;
     }
     
-    const product = products.find(p => p.id === selectedProduct);
+    const product = products.find(p => p.id.toString() === selectedProduct);
     if (!product) return;
     if (product.quantity < quantity) {
       alert('Insufficient stock available');
@@ -30,7 +30,7 @@ const Sales = ({ products = [], onSale, onUpdateSales }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          productId: selectedProduct,
+          productId: product.id,
           quantity,
           totalAmount
         }),
@@ -48,6 +48,8 @@ const Sales = ({ products = [], onSale, onUpdateSales }) => {
     }
   };
 
+  const selected = products.find(p => p.id.toString() === selectedProduct);
+
   return (
     <div className="sales">
       <h1>Record Sales</h1>
@@ -63,10 +65,10 @@ const Sales = ({ products = [], onSale, onUpdateSales }) => {
               required
             >
               <option value="">Select a product</option>
-              {products.length > 0 && products.map(product => (
+              {products.map(product => (
                 <option 
                   key={product.id} 
-                  value={product.id}
+                  value={product.id.toString()}
                   disabled={product.quantity === 0}
                 >
                   {product.name} - M{product.price.toFixed(2)} (Stock: {product.quantity})
@@ -75,49 +77,38 @@ const Sales = ({ products = [], onSale, onUpdateSales }) => {
             </select>
           </div>
           
-          {selectedProduct && products.length > 0 && (() => {
-            const product = products.find(p => p.id === selectedProduct);
-            return product ? (
-              <div className="selected-product">
-                {product.imageUrl && (
-                  <div className="product-image">
-                    <img 
-                      src={`${BACKEND_URL}${product.imageUrl}`} 
-                      alt={product.name} 
-                    />
-                  </div>
-                )}
-                <div className="product-details">
-                  <h3>{product.name}</h3>
-                  <p>Category: {product.category}</p>
-                  <p>Available: {product.quantity}</p>
+          {selected && (
+            <div className="selected-product">
+              {selected.imageUrl && (
+                <div className="product-image">
+                  <img src={`${BACKEND_URL}${selected.imageUrl}`} alt={selected.name} />
                 </div>
+              )}
+              <div className="product-details">
+                <h3>{selected.name}</h3>
+                <p>Category: {selected.category}</p>
+                <p>Available: {selected.quantity}</p>
               </div>
-            ) : null;
-          })()}
+            </div>
+          )}
           
           <div className="form-group">
             <label>Quantity:</label>
             <input
               type="number"
               min="1"
-              max={selectedProduct && products.find(p => p.id === selectedProduct)?.quantity || 1}
+              max={selected ? selected.quantity : 1}
               value={quantity}
               onChange={(e) => setQuantity(parseInt(e.target.value))}
               required
             />
           </div>
           
-          {selectedProduct && (() => {
-            const product = products.find(p => p.id === selectedProduct);
-            return product ? (
-              <div className="sale-summary">
-                <p>
-                  Total: M{(product.price * quantity).toFixed(2)}
-                </p>
-              </div>
-            ) : null;
-          })()}
+          {selected && (
+            <div className="sale-summary">
+              <p>Total: M{(selected.price * quantity).toFixed(2)}</p>
+            </div>
+          )}
           
           <button type="submit">Record Sale</button>
         </form>
