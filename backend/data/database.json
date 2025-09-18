@@ -1,0 +1,54 @@
+{
+  "products": [
+    {
+      "id": "1757705091061",
+      "name": "Drinks",
+      "description": "lekerr",
+      "category": "Soft drinks",
+      "price": 10,
+      "quantity": 498,
+      "imageUrl": "/uploads/product-1757705091057-958832919.jpeg",
+      "createdAt": "2025-09-12T19:24:51.061Z",
+      "updatedAt": "2025-09-12T22:59:11.979Z"
+    },
+    {
+      "id": "1757706292388",
+      "name": "papa moroho le nama",
+      "description": "lunch",
+      "category": "Food",
+      "price": 35,
+      "quantity": 11,
+      "imageUrl": "/uploads/product-1757706292387-842233316.jpeg",
+      "createdAt": "2025-09-12T19:44:52.388Z"
+    },
+    {
+      "id": "1757706398033",
+      "name": "Nick Nacks",
+      "description": "deli",
+      "category": "zimbas",
+      "price": 1.5,
+      "quantity": 50,
+      "imageUrl": "/uploads/product-1757706398030-85343267.jpeg",
+      "createdAt": "2025-09-12T19:46:38.033Z"
+    }
+  ],
+  "sales": [
+    {
+      "id": "1757705146683",
+      "productId": "1757705091061",
+      "productName": "Coke",
+      "quantity": 2,
+      "totalAmount": 20,
+      "date": "2025-09-12T19:25:46.683Z"
+    },
+    {
+      "id": "1757706451366",
+      "productId": "1757706292388",
+      "productName": "papa moroho le nama",
+      "quantity": 4,
+      "totalAmount": 140,
+      "date": "2025-09-12T19:47:31.366Z"
+    }
+  ],
+  "inventory": []
+}
