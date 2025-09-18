@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fetchProducts, createProduct, updateProduct, deleteProduct } from '../api';
 
-const BACKEND_URL = "https://wings-inventory-backend.onrender.com/api";
+const BACKEND_URL = "https://wings-inventory-backend.onrender.com";
 
-// Helper to resolve image URLs
 const getImageUrl = (imageUrl) => {
   if (!imageUrl) return null;
   return imageUrl.startsWith('http') ? imageUrl : `${BACKEND_URL}${imageUrl}`;
@@ -48,7 +47,6 @@ const ProductManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const productData = new FormData();
     productData.append('name', formData.name);
     productData.append('description', formData.description);
@@ -140,11 +138,7 @@ const ProductManagement = () => {
           <div className="form-group full-width">
             <label>Product Image:</label>
             <input type="file" name="image" accept="image/*" onChange={handleImageChange} />
-            {imagePreview && (
-              <div className="image-preview">
-                <img src={imagePreview} alt="Preview" />
-              </div>
-            )}
+            {imagePreview && <div className="image-preview"><img src={imagePreview} alt="Preview" /></div>}
           </div>
 
           <div className="form-actions">
