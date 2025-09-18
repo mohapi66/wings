@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const BACKEND_URL = "https://wings-inventory-backend.onrender.com/api"; // Updated backend URL
 
-const Sales = ({ products, onSale, onUpdateSales }) => {
+const Sales = ({ products = [], onSale, onUpdateSales }) => {
   const [selectedProduct, setSelectedProduct] = useState('');
   const [quantity, setQuantity] = useState(1);
 
@@ -15,6 +15,7 @@ const Sales = ({ products, onSale, onUpdateSales }) => {
     }
     
     const product = products.find(p => p.id === selectedProduct);
+    if (!product) return;
     if (product.quantity < quantity) {
       alert('Insufficient stock available');
       return;
@@ -62,7 +63,7 @@ const Sales = ({ products, onSale, onUpdateSales }) => {
               required
             >
               <option value="">Select a product</option>
-              {products.map(product => (
+              {products.length > 0 && products.map(product => (
                 <option 
                   key={product.id} 
                   value={product.id}
@@ -74,43 +75,49 @@ const Sales = ({ products, onSale, onUpdateSales }) => {
             </select>
           </div>
           
-          {selectedProduct && (
-            <div className="selected-product">
-              {products.find(p => p.id === selectedProduct).imageUrl && (
-                <div className="product-image">
-                  <img 
-                    src={products.find(p => p.id === selectedProduct).imageUrl} 
-                    alt={products.find(p => p.id === selectedProduct).name} 
-                  />
+          {selectedProduct && products.length > 0 && (() => {
+            const product = products.find(p => p.id === selectedProduct);
+            return product ? (
+              <div className="selected-product">
+                {product.imageUrl && (
+                  <div className="product-image">
+                    <img 
+                      src={`${BACKEND_URL}${product.imageUrl}`} 
+                      alt={product.name} 
+                    />
+                  </div>
+                )}
+                <div className="product-details">
+                  <h3>{product.name}</h3>
+                  <p>Category: {product.category}</p>
+                  <p>Available: {product.quantity}</p>
                 </div>
-              )}
-              <div className="product-details">
-                <h3>{products.find(p => p.id === selectedProduct).name}</h3>
-                <p>Category: {products.find(p => p.id === selectedProduct).category}</p>
-                <p>Available: {products.find(p => p.id === selectedProduct).quantity}</p>
               </div>
-            </div>
-          )}
+            ) : null;
+          })()}
           
           <div className="form-group">
             <label>Quantity:</label>
             <input
               type="number"
               min="1"
-              max={selectedProduct ? products.find(p => p.id === selectedProduct).quantity : 1}
+              max={selectedProduct && products.find(p => p.id === selectedProduct)?.quantity || 1}
               value={quantity}
               onChange={(e) => setQuantity(parseInt(e.target.value))}
               required
             />
           </div>
           
-          {selectedProduct && (
-            <div className="sale-summary">
-              <p>
-                Total: M{(products.find(p => p.id === selectedProduct).price * quantity).toFixed(2)}
-              </p>
-            </div>
-          )}
+          {selectedProduct && (() => {
+            const product = products.find(p => p.id === selectedProduct);
+            return product ? (
+              <div className="sale-summary">
+                <p>
+                  Total: M{(product.price * quantity).toFixed(2)}
+                </p>
+              </div>
+            ) : null;
+          })()}
           
           <button type="submit">Record Sale</button>
         </form>
