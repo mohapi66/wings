@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fetchProducts, createProduct, updateProduct, deleteProduct } from '../api';
 
+const BACKEND_URL = "https://wings-inventory-backend.onrender.com"; // backend URL for images
+
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
   const [formData, setFormData] = useState({
@@ -80,7 +82,7 @@ const ProductManagement = () => {
       quantity: product.quantity,
       image: null
     });
-    setImagePreview(product.imageUrl || null);
+    setImagePreview(product.imageUrl ? `${BACKEND_URL}${product.imageUrl}` : null);
   };
 
   const handleCancelEdit = () => {
@@ -152,7 +154,7 @@ const ProductManagement = () => {
             {products.map(product => (
               <div key={product.id} className="product-card">
                 {product.imageUrl && (
-                  <div className="product-image"><img src={product.imageUrl} alt={product.name} /></div>
+                  <div className="product-image"><img src={`${BACKEND_URL}${product.imageUrl}`} alt={product.name} /></div>
                 )}
                 <div className="product-info">
                   <h3>{product.name}</h3>
