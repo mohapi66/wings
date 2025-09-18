@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+const BACKEND_URL = "https://wings-inventory-backend.onrender.com/api"; // Updated backend URL
+
 const Sales = ({ products, onSale, onUpdateSales }) => {
   const [selectedProduct, setSelectedProduct] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -21,7 +23,7 @@ const Sales = ({ products, onSale, onUpdateSales }) => {
     const totalAmount = product.price * quantity;
     
     try {
-      const response = await fetch('/api/sales', {
+      const response = await fetch(`${BACKEND_URL}/sales`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

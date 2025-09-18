@@ -2,6 +2,7 @@
   "name": "wings-inventory-frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://your-frontend-vercel-url.vercel.app",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -28,6 +29,5 @@
   },
   "devDependencies": {
     "react-scripts": "5.0.1"
-  },
-  "proxy": "http://localhost:5000"
+  }
 }

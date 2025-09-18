@@ -1,5 +1,7 @@
 import React from 'react';
 
+const BACKEND_URL = "https://wings-inventory-backend.onrender.com/api"; // Updated backend URL
+
 const Reporting = ({ products, sales }) => {
   const totalSalesValue = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
   const totalProductsValue = products.reduce((sum, product) => sum + (product.price * product.quantity), 0);

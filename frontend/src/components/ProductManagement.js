@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchProducts, createProduct, updateProduct, deleteProduct } from '../api';
 
-const ProductManagement = ({ products, onUpdate }) => {
+const ProductManagement = () => {
+  const [products, setProducts] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -11,6 +13,15 @@ const ProductManagement = ({ products, onUpdate }) => {
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    const data = await fetchProducts();
+    setProducts(data);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -23,63 +34,37 @@ const ProductManagement = ({ products, onUpdate }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({
-        ...formData,
-        image: file
-      });
-      
-      // Create preview
+      setFormData({ ...formData, image: file });
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target.result);
-      };
+      reader.onload = (e) => setImagePreview(e.target.result);
       reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    const productData = new FormData();
+    productData.append('name', formData.name);
+    productData.append('description', formData.description);
+    productData.append('category', formData.category);
+    productData.append('price', formData.price);
+    productData.append('quantity', formData.quantity);
+    if (formData.image) productData.append('image', formData.image);
+    if (editingProduct && editingProduct.imageUrl) {
+      productData.append('currentImage', editingProduct.imageUrl);
+    }
+
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('price', formData.price);
-      formDataToSend.append('quantity', formData.quantity);
-      
-      if (formData.image) {
-        formDataToSend.append('image', formData.image);
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, productData);
+      } else {
+        await createProduct(productData);
       }
-      
-      if (editingProduct && editingProduct.imageUrl) {
-        formDataToSend.append('currentImage', editingProduct.imageUrl);
-      }
-      
-      const url = editingProduct 
-        ? `/api/products/${editingProduct.id}`
-        : '/api/products';
-      
-      const method = editingProduct ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        body: formDataToSend,
-      });
-      
-      if (response.ok) {
-        setFormData({
-          name: '',
-          description: '',
-          category: '',
-          price: '',
-          quantity: '',
-          image: null
-        });
-        setImagePreview(null);
-        setEditingProduct(null);
-        onUpdate();
-      }
+      setFormData({ name: '', description: '', category: '', price: '', quantity: '', image: null });
+      setImagePreview(null);
+      setEditingProduct(null);
+      loadProducts();
     } catch (error) {
       console.error('Error saving product:', error);
     }
@@ -100,27 +85,15 @@ const ProductManagement = ({ products, onUpdate }) => {
 
   const handleCancelEdit = () => {
     setEditingProduct(null);
-    setFormData({
-      name: '',
-      description: '',
-      category: '',
-      price: '',
-      quantity: '',
-      image: null
-    });
+    setFormData({ name: '', description: '', category: '', price: '', quantity: '', image: null });
     setImagePreview(null);
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        const response = await fetch(`/api/products/${id}`, {
-          method: 'DELETE'
-        });
-        
-        if (response.ok) {
-          onUpdate();
-        }
+        await deleteProduct(id);
+        loadProducts();
       } catch (error) {
         console.error('Error deleting product:', error);
       }
@@ -136,87 +109,42 @@ const ProductManagement = ({ products, onUpdate }) => {
         <form onSubmit={handleSubmit} className="product-form" encType="multipart/form-data">
           <div className="form-group">
             <label>Name:</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
+            <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
           </div>
-          
+
           <div className="form-group">
             <label>Description:</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              required
-            />
+            <textarea name="description" value={formData.description} onChange={handleInputChange} required />
           </div>
-          
+
           <div className="form-group">
             <label>Category:</label>
-            <input
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              required
-            />
+            <input type="text" name="category" value={formData.category} onChange={handleInputChange} required />
           </div>
-          
+
           <div className="form-group">
             <label>Price (M):</label>
-            <input
-              type="number"
-              step="0.01"
-              name="price"
-              value={formData.price}
-              onChange={handleInputChange}
-              required
-            />
+            <input type="number" step="0.01" name="price" value={formData.price} onChange={handleInputChange} required />
           </div>
-          
+
           <div className="form-group">
             <label>Quantity:</label>
-            <input
-              type="number"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleInputChange}
-              required
-            />
+            <input type="number" name="quantity" value={formData.quantity} onChange={handleInputChange} required />
           </div>
-          
+
           <div className="form-group full-width">
             <label>Product Image:</label>
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-            {imagePreview && (
-              <div className="image-preview">
-                <img src={imagePreview} alt="Preview" />
-              </div>
-            )}
+            <input type="file" name="image" accept="image/*" onChange={handleImageChange} />
+            {imagePreview && <div className="image-preview"><img src={imagePreview} alt="Preview" /></div>}
           </div>
-          
+
           <div className="form-actions">
-            <button type="submit">
-              {editingProduct ? 'Update Product' : 'Add Product'}
-            </button>
-            {editingProduct && (
-              <button type="button" onClick={handleCancelEdit}>
-                Cancel
-              </button>
-            )}
+            <button type="submit">{editingProduct ? 'Update Product' : 'Add Product'}</button>
+            {editingProduct && <button type="button" onClick={handleCancelEdit}>Cancel</button>}
           </div>
         </form>
       </div>
-      
+
       <div className="products-list">
         <h2>Current Products</h2>
         {products.length > 0 ? (
@@ -224,9 +152,7 @@ const ProductManagement = ({ products, onUpdate }) => {
             {products.map(product => (
               <div key={product.id} className="product-card">
                 {product.imageUrl && (
-                  <div className="product-image">
-                    <img src={product.imageUrl} alt={product.name} />
-                  </div>
+                  <div className="product-image"><img src={product.imageUrl} alt={product.name} /></div>
                 )}
                 <div className="product-info">
                   <h3>{product.name}</h3>
@@ -236,18 +162,8 @@ const ProductManagement = ({ products, onUpdate }) => {
                     Stock: {product.quantity}
                   </p>
                   <div className="product-actions">
-                    <button 
-                      className="edit-btn"
-                      onClick={() => handleEdit(product)}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      className="delete-btn"
-                      onClick={() => handleDelete(product.id)}
-                    >
-                      Delete
-                    </button>
+                    <button className="edit-btn" onClick={() => handleEdit(product)}>Edit</button>
+                    <button className="delete-btn" onClick={() => handleDelete(product.id)}>Delete</button>
                   </div>
                 </div>
               </div>

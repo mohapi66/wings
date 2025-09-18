@@ -14,40 +14,32 @@ function App() {
   const [sales, setSales] = useState([]);
   const [inventoryStatus, setInventoryStatus] = useState({});
 
+  // Render backend base URL
+  const RENDER_URL = 'https://wings-y3ae.onrender.com';
+
   useEffect(() => {
-    fetchProducts();
-    fetchRecentSales();
-    fetchInventoryStatus();
+    loadAllData();
   }, []);
 
+  const loadAllData = () => {
+    fetchProducts().then(setProducts).catch(console.error);
+    fetchRecentSales().then(setSales).catch(console.error);
+    fetchInventoryStatus().then(setInventoryStatus).catch(console.error);
+  };
+
   const fetchProducts = async () => {
-    try {
-      const response = await fetch('/api/products');
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
+    const response = await fetch(`${RENDER_URL}/api/products`);
+    return response.json();
   };
 
   const fetchRecentSales = async () => {
-    try {
-      const response = await fetch('/api/sales/recent');
-      const data = await response.json();
-      setSales(data);
-    } catch (error) {
-      console.error('Error fetching sales:', error);
-    }
+    const response = await fetch(`${RENDER_URL}/api/sales/recent`);
+    return response.json();
   };
 
   const fetchInventoryStatus = async () => {
-    try {
-      const response = await fetch('/api/inventory/status');
-      const data = await response.json();
-      setInventoryStatus(data);
-    } catch (error) {
-      console.error('Error fetching inventory status:', error);
-    }
+    const response = await fetch(`${RENDER_URL}/api/inventory/status`);
+    return response.json();
   };
 
   return (
@@ -56,37 +48,39 @@ function App() {
         <Navbar />
         <div className="main-content">
           <Routes>
-            <Route path="/" element={
-              <Dashboard 
-                products={products} 
-                sales={sales} 
-                inventoryStatus={inventoryStatus} 
-              />
-            } />
-            <Route path="/products" element={
-              <ProductManagement 
-                products={products} 
-                onUpdate={fetchProducts} 
-              />
-            } />
-            <Route path="/sales" element={
-              <Sales 
-                products={products} 
-                onSale={fetchProducts} 
-                onUpdateSales={fetchRecentSales} 
-              />
-            } />
-            <Route path="/inventory" element={
-              <Inventory 
-                inventoryStatus={inventoryStatus} 
-              />
-            } />
-            <Route path="/reports" element={
-              <Reporting 
-                products={products} 
-                sales={sales} 
-              />
-            } />
+            <Route
+              path="/"
+              element={
+                <Dashboard
+                  products={products}
+                  sales={sales}
+                  inventoryStatus={inventoryStatus}
+                />
+              }
+            />
+            <Route
+              path="/products"
+              element={<ProductManagement />}
+            />
+            <Route
+              path="/sales"
+              element={
+                <Sales
+                  onSale={loadAllData}
+                  onUpdateSales={() =>
+                    fetchRecentSales().then(setSales)
+                  }
+                />
+              }
+            />
+            <Route
+              path="/inventory"
+              element={<Inventory inventoryStatus={inventoryStatus} />}
+            />
+            <Route
+              path="/reports"
+              element={<Reporting products={products} sales={sales} />}
+            />
           </Routes>
         </div>
         <Footer />
