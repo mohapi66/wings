@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { fetchProducts, createProduct, updateProduct, deleteProduct } from '../api';
 
-const BACKEND_URL = "https://wings-inventory-backend.onrender.com"; // backend URL for images
+const BACKEND_URL = "https://wings-inventory-backend.onrender.com/api";
+
+// Helper to resolve image URLs
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+  return imageUrl.startsWith('http') ? imageUrl : `${BACKEND_URL}${imageUrl}`;
+};
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -27,10 +33,7 @@ const ProductManagement = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleImageChange = (e) => {
@@ -82,7 +85,7 @@ const ProductManagement = () => {
       quantity: product.quantity,
       image: null
     });
-    setImagePreview(product.imageUrl ? `${BACKEND_URL}${product.imageUrl}` : null);
+    setImagePreview(getImageUrl(product.imageUrl));
   };
 
   const handleCancelEdit = () => {
@@ -105,7 +108,7 @@ const ProductManagement = () => {
   return (
     <div className="product-management">
       <h1>Product Management</h1>
-      
+
       <div className="form-section">
         <h2>{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
         <form onSubmit={handleSubmit} className="product-form" encType="multipart/form-data">
@@ -137,7 +140,11 @@ const ProductManagement = () => {
           <div className="form-group full-width">
             <label>Product Image:</label>
             <input type="file" name="image" accept="image/*" onChange={handleImageChange} />
-            {imagePreview && <div className="image-preview"><img src={imagePreview} alt="Preview" /></div>}
+            {imagePreview && (
+              <div className="image-preview">
+                <img src={imagePreview} alt="Preview" />
+              </div>
+            )}
           </div>
 
           <div className="form-actions">
@@ -154,7 +161,9 @@ const ProductManagement = () => {
             {products.map(product => (
               <div key={product.id} className="product-card">
                 {product.imageUrl && (
-                  <div className="product-image"><img src={`${BACKEND_URL}${product.imageUrl}`} alt={product.name} /></div>
+                  <div className="product-image">
+                    <img src={getImageUrl(product.imageUrl)} alt={product.name} />
+                  </div>
                 )}
                 <div className="product-info">
                   <h3>{product.name}</h3>
